@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 local Library = {}
@@ -87,7 +88,7 @@ local function UpdateSliderValue(slider, value, min, max)
     end
 end
 
-function Library.CreateLib(title, discord)
+function Library.CreateLib(title, discord, keySystemSettings)
     local self = setmetatable({}, Library)
     self.WindowTitle = title
     self.DiscordLink = discord or "gg/jNpgshBMqz"
@@ -95,6 +96,16 @@ function Library.CreateLib(title, discord)
     self.CurrentTab = nil
     self.Visible = true
     self.TabContents = {}
+    self.KeySystemEnabled = keySystemSettings and keySystemSettings.KeySystem or false
+    self.KeySettings = keySystemSettings and keySystemSettings.KeySettings or {}
+    self.KeyVerified = false
+    
+    if self.KeySystemEnabled then
+        self:CreateKeySystem()
+        if not self.KeyVerified then
+            return self
+        end
+    end
     
     local pgui = player:WaitForChild("PlayerGui")
     local ScreenGui = Instance.new("ScreenGui")
@@ -304,6 +315,153 @@ function Library.CreateLib(title, discord)
     self.Background = Background
     self.TabContainer = TabContainer
     self.TabHolder = TabHolder
+    
+    function self:CreateKeySystem()
+        local keyFrame = Instance.new("Frame")
+        keyFrame.Name = "KeySystem"
+        keyFrame.Parent = self.ScreenGui
+        keyFrame.BackgroundColor3 = Color3.fromRGB(11, 12, 14)
+        keyFrame.BackgroundTransparency = 0.3
+        keyFrame.BorderSizePixel = 0
+        keyFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+        keyFrame.Size = UDim2.new(0, 400, 0, 300)
+        keyFrame.ZIndex = 100
+        keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        
+        local UICorner = Instance.new("UICorner")
+        UICorner.CornerRadius = UDim.new(0, 8)
+        UICorner.Parent = keyFrame
+        
+        local Title = Instance.new("TextLabel")
+        Title.Parent = keyFrame
+        Title.BackgroundTransparency = 1
+        Title.Position = UDim2.new(0, 0, 0, 20)
+        Title.Size = UDim2.new(1, 0, 0, 30)
+        Title.ZIndex = 101
+        Title.Font = Enum.Font.GothamBold
+        Title.Text = self.KeySettings.Title or "Key System"
+        Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Title.TextSize = 24
+        
+        local Subtitle = Instance.new("TextLabel")
+        Subtitle.Parent = keyFrame
+        Subtitle.BackgroundTransparency = 1
+        Subtitle.Position = UDim2.new(0, 0, 0, 60)
+        Subtitle.Size = UDim2.new(1, 0, 0, 20)
+        Subtitle.ZIndex = 101
+        Subtitle.Font = Enum.Font.Gotham
+        Subtitle.Text = self.KeySettings.Subtitle or "Enter Key"
+        Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Subtitle.TextSize = 16
+        
+        local Note = Instance.new("TextLabel")
+        Note.Parent = keyFrame
+        Note.BackgroundTransparency = 1
+        Note.Position = UDim2.new(0, 20, 0, 90)
+        Note.Size = UDim2.new(1, -40, 0, 40)
+        Note.ZIndex = 101
+        Note.Font = Enum.Font.Gotham
+        Note.Text = self.KeySettings.Note or "Enter your key below"
+        Note.TextColor3 = Color3.fromRGB(150, 150, 150)
+        Note.TextSize = 14
+        Note.TextWrapped = true
+        
+        local KeyInput = Instance.new("TextBox")
+        KeyInput.Parent = keyFrame
+        KeyInput.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+        KeyInput.BorderSizePixel = 0
+        KeyInput.Position = UDim2.new(0.5, -150, 0, 140)
+        KeyInput.Size = UDim2.new(0, 300, 0, 40)
+        KeyInput.ZIndex = 101
+        KeyInput.Font = Enum.Font.Gotham
+        KeyInput.PlaceholderText = "Enter Key"
+        KeyInput.Text = ""
+        KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+        KeyInput.TextSize = 16
+        
+        local UICorner2 = Instance.new("UICorner")
+        UICorner2.CornerRadius = UDim.new(0, 6)
+        UICorner2.Parent = KeyInput
+        
+        local SubmitButton = Instance.new("TextButton")
+        SubmitButton.Parent = keyFrame
+        SubmitButton.BackgroundColor3 = Color3.fromRGB(181, 79, 79)
+        SubmitButton.BorderSizePixel = 0
+        SubmitButton.Position = UDim2.new(0.5, -75, 0, 200)
+        SubmitButton.Size = UDim2.new(0, 150, 0, 40)
+        SubmitButton.ZIndex = 101
+        SubmitButton.Font = Enum.Font.GothamBold
+        SubmitButton.Text = "Submit"
+        SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        SubmitButton.TextSize = 18
+        
+        local UICorner3 = Instance.new("UICorner")
+        UICorner3.CornerRadius = UDim.new(0, 6)
+        UICorner3.Parent = SubmitButton
+        
+        local ErrorLabel = Instance.new("TextLabel")
+        ErrorLabel.Parent = keyFrame
+        ErrorLabel.BackgroundTransparency = 1
+        ErrorLabel.Position = UDim2.new(0, 20, 0, 250)
+        ErrorLabel.Size = UDim2.new(1, -40, 0, 20)
+        ErrorLabel.ZIndex = 101
+        ErrorLabel.Font = Enum.Font.Gotham
+        ErrorLabel.Text = ""
+        ErrorLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+        ErrorLabel.TextSize = 14
+        ErrorLabel.Visible = false
+        
+        if self.KeySettings.SaveKey then
+            local success, saved = pcall(function()
+                return readfile(self.KeySettings.FileName .. ".txt")
+            end)
+            if success and saved then
+                KeyInput.Text = saved
+            end
+        end
+        
+        SubmitButton.MouseButton1Click:Connect(function()
+            local inputKey = KeyInput.Text
+            local isValid = false
+            
+            if self.KeySettings.GrabKeyFromSite and self.KeySettings.Key then
+                for _, key in ipairs(self.KeySettings.Key) do
+                    local success, response = pcall(function()
+                        return game:HttpGet(key)
+                    end)
+                    if success and response == inputKey then
+                        isValid = true
+                        break
+                    end
+                end
+            else
+                for _, key in ipairs(self.KeySettings.Key or {}) do
+                    if inputKey == key then
+                        isValid = true
+                        break
+                    end
+                end
+            end
+            
+            if isValid then
+                self.KeyVerified = true
+                if self.KeySettings.SaveKey then
+                    pcall(function()
+                        writefile(self.KeySettings.FileName .. ".txt", inputKey)
+                    end)
+                end
+                keyFrame:Destroy()
+                self:CreateLib(title, discord, keySystemSettings)
+            else
+                ErrorLabel.Text = "Invalid Key!"
+                ErrorLabel.Visible = true
+                task.wait(2)
+                ErrorLabel.Visible = false
+            end
+        end)
+        
+        return self
+    end
     
     function self:SetVisibility(state)
         self.Visible = state
@@ -549,6 +707,231 @@ function Library.CreateLib(title, discord)
             dividerFrame.ZIndex = 16
             
             return dividerFrame
+        end
+        
+        function tab:CreateInput(options)
+            local settingKey = options.Flag or options.Name:gsub("%s+", "_")
+            self[settingKey] = options.CurrentValue or ""
+            
+            local InputFrame = Instance.new("Frame")
+            InputFrame.Name = "Input_" .. options.Name
+            InputFrame.Parent = ContentFrame
+            InputFrame.BackgroundTransparency = 1
+            InputFrame.Size = UDim2.new(1, 0, 0, 40)
+            InputFrame.ZIndex = 16
+            
+            local Section = Instance.new("Frame")
+            Section.Parent = InputFrame
+            Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
+            Section.BorderSizePixel = 0
+            Section.Size = UDim2.new(1, 0, 1, 0)
+            Section.ZIndex = 16
+            
+            local UICorner = Instance.new("UICorner")
+            UICorner.CornerRadius = UDim.new(0, 4)
+            UICorner.Parent = Section
+            
+            local UIPadding = Instance.new("UIPadding")
+            UIPadding.Parent = Section
+            UIPadding.PaddingBottom = UDim.new(0, 5)
+            UIPadding.PaddingLeft = UDim.new(0, 15)
+            UIPadding.PaddingRight = UDim.new(0, 15)
+            UIPadding.PaddingTop = UDim.new(0, 5)
+            
+            local UIListLayout = Instance.new("UIListLayout")
+            UIListLayout.Parent = Section
+            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            UIListLayout.Padding = UDim.new(0, 2)
+            
+            local InputContainer = Instance.new("Frame")
+            InputContainer.Name = "Input_" .. options.Name
+            InputContainer.Parent = Section
+            InputContainer.BackgroundTransparency = 1
+            InputContainer.Size = UDim2.new(1, 0, 0, 25)
+            InputContainer.ZIndex = 26
+            
+            local TextLabel = Instance.new("TextLabel")
+            TextLabel.Parent = InputContainer
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.Size = UDim2.new(0, 140, 1, 0)
+            TextLabel.ZIndex = 27
+            TextLabel.Font = Enum.Font.Gotham
+            TextLabel.Text = options.Name
+            TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
+            TextLabel.TextSize = 15
+            TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local InputBox = Instance.new("TextBox")
+            InputBox.Name = "InputBox"
+            InputBox.Parent = InputContainer
+            InputBox.AnchorPoint = Vector2.new(1, 0)
+            InputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+            InputBox.BackgroundTransparency = 0
+            InputBox.BorderSizePixel = 0
+            InputBox.Position = UDim2.new(1, 0, 0, 0)
+            InputBox.Size = UDim2.new(0.5, 0, 1, 0)
+            InputBox.ZIndex = 28
+            InputBox.Font = Enum.Font.Gotham
+            InputBox.Text = options.CurrentValue or ""
+            InputBox.PlaceholderText = options.PlaceholderText or ""
+            InputBox.TextColor3 = Color3.fromRGB(200, 200, 200)
+            InputBox.TextSize = 14
+            InputBox.ClearTextOnFocus = options.RemoveTextAfterFocusLost or false
+            
+            local UICorner_2 = Instance.new("UICorner")
+            UICorner_2.CornerRadius = UDim.new(0, 4)
+            UICorner_2.Parent = InputBox
+            
+            InputBox.FocusLost:Connect(function(enterPressed)
+                self[settingKey] = InputBox.Text
+                if options.Callback then
+                    options.Callback(InputBox.Text)
+                end
+            end)
+        end
+        
+        function tab:CreateKeybind(options)
+            local settingKey = options.Flag or options.Name:gsub("%s+", "_")
+            self[settingKey] = options.CurrentKeybind or "Q"
+            self[settingKey .. "_Pressed"] = false
+            
+            local KeybindFrame = Instance.new("Frame")
+            KeybindFrame.Name = "Keybind_" .. options.Name
+            KeybindFrame.Parent = ContentFrame
+            KeybindFrame.BackgroundTransparency = 1
+            KeybindFrame.Size = UDim2.new(1, 0, 0, 40)
+            KeybindFrame.ZIndex = 16
+            
+            local Section = Instance.new("Frame")
+            Section.Parent = KeybindFrame
+            Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
+            Section.BorderSizePixel = 0
+            Section.Size = UDim2.new(1, 0, 1, 0)
+            Section.ZIndex = 16
+            
+            local UICorner = Instance.new("UICorner")
+            UICorner.CornerRadius = UDim.new(0, 4)
+            UICorner.Parent = Section
+            
+            local UIPadding = Instance.new("UIPadding")
+            UIPadding.Parent = Section
+            UIPadding.PaddingBottom = UDim.new(0, 5)
+            UIPadding.PaddingLeft = UDim.new(0, 15)
+            UIPadding.PaddingRight = UDim.new(0, 15)
+            UIPadding.PaddingTop = UDim.new(0, 5)
+            
+            local UIListLayout = Instance.new("UIListLayout")
+            UIListLayout.Parent = Section
+            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            UIListLayout.Padding = UDim.new(0, 2)
+            
+            local KeybindContainer = Instance.new("Frame")
+            KeybindContainer.Name = "Keybind_" .. options.Name
+            KeybindContainer.Parent = Section
+            KeybindContainer.BackgroundTransparency = 1
+            KeybindContainer.Size = UDim2.new(1, 0, 0, 25)
+            KeybindContainer.ZIndex = 26
+            
+            local TextLabel = Instance.new("TextLabel")
+            TextLabel.Parent = KeybindContainer
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.Size = UDim2.new(0, 140, 1, 0)
+            TextLabel.ZIndex = 27
+            TextLabel.Font = Enum.Font.Gotham
+            TextLabel.Text = options.Name
+            TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
+            TextLabel.TextSize = 15
+            TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local KeybindButton = Instance.new("TextButton")
+            KeybindButton.Name = "KeybindButton"
+            KeybindButton.Parent = KeybindContainer
+            KeybindButton.AnchorPoint = Vector2.new(1, 0)
+            KeybindButton.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+            KeybindButton.BackgroundTransparency = 0
+            KeybindButton.BorderSizePixel = 0
+            KeybindButton.Position = UDim2.new(1, 0, 0, 0)
+            KeybindButton.Size = UDim2.new(0.3, 0, 1, 0)
+            KeybindButton.ZIndex = 28
+            KeybindButton.Font = Enum.Font.Gotham
+            KeybindButton.Text = self[settingKey]
+            KeybindButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+            KeybindButton.TextSize = 14
+            
+            local UICorner_2 = Instance.new("UICorner")
+            UICorner_2.CornerRadius = UDim.new(0, 4)
+            UICorner_2.Parent = KeybindButton
+            
+            local listening = false
+            
+            local function updateKeybind(key)
+                local keyName = tostring(key):gsub("Enum.KeyCode.", "")
+                self[settingKey] = keyName
+                KeybindButton.Text = keyName
+                listening = false
+            end
+            
+            KeybindButton.MouseButton1Click:Connect(function()
+                if not listening then
+                    listening = true
+                    KeybindButton.Text = "..."
+                    
+                    local connection
+                    connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                        if gameProcessed then return end
+                        
+                        if input.UserInputType == Enum.UserInputType.Keyboard then
+                            updateKeybind(input.KeyCode)
+                            connection:Disconnect()
+                        elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+                            updateKeybind("MouseButton1")
+                            connection:Disconnect()
+                        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+                            updateKeybind("MouseButton2")
+                            connection:Disconnect()
+                        end
+                    end)
+                end
+            end)
+            
+            local keyConnection
+            keyConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+                
+                local keyName = tostring(input.KeyCode):gsub("Enum.KeyCode.", "")
+                if keyName == self[settingKey] then
+                    if options.HoldToInteract then
+                        self[settingKey .. "_Pressed"] = true
+                        if options.Callback then
+                            options.Callback(true)
+                        end
+                    else
+                        if options.Callback then
+                            options.Callback(true)
+                        end
+                    end
+                end
+            end)
+            
+            if options.HoldToInteract then
+                UserInputService.InputEnded:Connect(function(input, gameProcessed)
+                    if gameProcessed then return end
+                    
+                    local keyName = tostring(input.KeyCode):gsub("Enum.KeyCode.", "")
+                    if keyName == self[settingKey] then
+                        self[settingKey .. "_Pressed"] = false
+                        if options.Callback then
+                            options.Callback(false)
+                        end
+                    end
+                end)
+            end
+            
+            KeybindFrame.Destroying:Connect(function()
+                if keyConnection then
+                    keyConnection:Disconnect()
+                end
+            end)
         end
         
         function tab:NewButton(text, info, callback)
