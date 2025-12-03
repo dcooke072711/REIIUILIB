@@ -1,3 +1,4 @@
+-- SaturnV7 UI Library
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -93,6 +94,7 @@ function Library.CreateLib(title, discord)
     self.Tabs = {}
     self.CurrentTab = nil
     self.Visible = true
+    self.TabContents = {}
     
     local pgui = player:WaitForChild("PlayerGui")
     local ScreenGui = Instance.new("ScreenGui")
@@ -281,30 +283,13 @@ function Library.CreateLib(title, discord)
     TabPadding.PaddingLeft = UDim.new(0, 11)
     TabPadding.PaddingTop = UDim.new(0, 10)
 
-    local ContentArea = Instance.new("ScrollingFrame")
-    ContentArea.Name = "ContentArea"
-    ContentArea.Parent = Main
-    ContentArea.BackgroundTransparency = 1
-    ContentArea.Position = UDim2.new(0, 150, 0, 0)
-    ContentArea.Size = UDim2.new(1, -150, 1, 0)
-    ContentArea.ZIndex = 5
-    ContentArea.ScrollBarThickness = 4
-    ContentArea.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-    local ContentLayout = Instance.new("UIListLayout")
-    ContentLayout.Parent = ContentArea
-    ContentLayout.Padding = UDim.new(0, 10)
-    ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-    local ContentPadding = Instance.new("UIPadding")
-    ContentPadding.Parent = ContentArea
-    ContentPadding.PaddingLeft = UDim.new(0, 8)
-    ContentPadding.PaddingRight = UDim.new(0, 8)
-    ContentPadding.PaddingTop = UDim.new(0, 11)
-
-    ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        ContentArea.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y + 20)
-    end)
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Name = "TabContainer"
+    TabContainer.Parent = Main
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.Position = UDim2.new(0, 150, 0, 0)
+    TabContainer.Size = UDim2.new(1, -150, 1, 0)
+    TabContainer.ZIndex = 5
 
     Draggify(Background, Header)
     
@@ -317,7 +302,7 @@ function Library.CreateLib(title, discord)
 
     self.ScreenGui = ScreenGui
     self.Background = Background
-    self.ContentArea = ContentArea
+    self.TabContainer = TabContainer
     self.TabHolder = TabHolder
     
     function self:SetVisibility(state)
@@ -406,6 +391,7 @@ function Library.CreateLib(title, discord)
     
     function self:NewTab(tabName, icon)
         local tab = {}
+        tab.Name = tabName
         
         local TabFrame = Instance.new("Frame")
         TabFrame.Name = "Tab_" .. tabName
@@ -464,6 +450,33 @@ function Library.CreateLib(title, discord)
         Button.ZIndex = 20
         Button.Text = ""
         
+        local ContentFrame = Instance.new("ScrollingFrame")
+        ContentFrame.Name = "Content_" .. tabName
+        ContentFrame.Parent = self.TabContainer
+        ContentFrame.BackgroundTransparency = 1
+        ContentFrame.Size = UDim2.new(1, 0, 1, 0)
+        ContentFrame.ScrollBarThickness = 4
+        ContentFrame.Visible = (#self.Tabs == 0)
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        ContentFrame.ZIndex = 5
+        
+        local ContentLayout = Instance.new("UIListLayout")
+        ContentLayout.Parent = ContentFrame
+        ContentLayout.Padding = UDim.new(0, 10)
+        ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        
+        local ContentPadding = Instance.new("UIPadding")
+        ContentPadding.Parent = ContentFrame
+        ContentPadding.PaddingLeft = UDim.new(0, 8)
+        ContentPadding.PaddingRight = UDim.new(0, 8)
+        ContentPadding.PaddingTop = UDim.new(0, 11)
+        
+        ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y + 20)
+        end)
+        
+        self.TabContents[tabName] = ContentFrame
+        
         Button.MouseButton1Click:Connect(function()
             if self.CurrentTab == TabFrame then return end
             
@@ -472,6 +485,9 @@ function Library.CreateLib(title, discord)
                 self.CurrentTab.Highlight.BackgroundTransparency = 1
                 self.CurrentTab.TabIcon.ImageColor3 = Color3.fromRGB(170,170,170)
                 self.CurrentTab.TabTitle.TextColor3 = Color3.fromRGB(170,170,170)
+                
+                local oldTabName = self.CurrentTab.Name:gsub("Tab_", "")
+                self.TabContents[oldTabName].Visible = false
             end
             
             self.CurrentTab = TabFrame
@@ -479,6 +495,8 @@ function Library.CreateLib(title, discord)
             Highlight.BackgroundTransparency = 0
             TabIcon.ImageColor3 = Color3.fromRGB(248, 91, 91)
             Title.TextColor3 = Color3.new(1,1,1)
+            
+            ContentFrame.Visible = true
         end)
         
         if #self.Tabs == 0 then
@@ -490,7 +508,7 @@ function Library.CreateLib(title, discord)
         function tab:CreateSection(sectionName)
             local sectionFrame = Instance.new("Frame")
             sectionFrame.Name = "Section_" .. sectionName
-            sectionFrame.Parent = self.ContentArea
+            sectionFrame.Parent = ContentFrame
             sectionFrame.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
             sectionFrame.BorderSizePixel = 0
             sectionFrame.Size = UDim2.new(1, 0, 0, 40)
@@ -524,7 +542,7 @@ function Library.CreateLib(title, discord)
         function tab:CreateDivider()
             local dividerFrame = Instance.new("Frame")
             dividerFrame.Name = "Divider"
-            dividerFrame.Parent = self.ContentArea
+            dividerFrame.Parent = ContentFrame
             dividerFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
             dividerFrame.BorderSizePixel = 0
             dividerFrame.Size = UDim2.new(1, 0, 0, 1)
@@ -536,7 +554,7 @@ function Library.CreateLib(title, discord)
         function tab:NewButton(text, info, callback)
             local ButtonFrame = Instance.new("Frame")
             ButtonFrame.Name = "Button_" .. text
-            ButtonFrame.Parent = self.ContentArea
+            ButtonFrame.Parent = ContentFrame
             ButtonFrame.BackgroundTransparency = 1
             ButtonFrame.Size = UDim2.new(1, 0, 0, 40)
             ButtonFrame.ZIndex = 16
@@ -599,7 +617,7 @@ function Library.CreateLib(title, discord)
             
             local ToggleFrame = Instance.new("Frame")
             ToggleFrame.Name = "Toggle_" .. text
-            ToggleFrame.Parent = self.ContentArea
+            ToggleFrame.Parent = ContentFrame
             ToggleFrame.BackgroundTransparency = 1
             ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
             ToggleFrame.ZIndex = 16
@@ -694,7 +712,7 @@ function Library.CreateLib(title, discord)
             
             local SliderFrame = Instance.new("Frame")
             SliderFrame.Name = "Slider_" .. text
-            SliderFrame.Parent = self.ContentArea
+            SliderFrame.Parent = ContentFrame
             SliderFrame.BackgroundTransparency = 1
             SliderFrame.Size = UDim2.new(1, 0, 0, 70)
             SliderFrame.ZIndex = 16
@@ -869,7 +887,7 @@ function Library.CreateLib(title, discord)
         function tab:NewDropdown(text, info, options, callback)
             local DropdownFrame = Instance.new("Frame")
             DropdownFrame.Name = "Dropdown_" .. text
-            DropdownFrame.Parent = self.ContentArea
+            DropdownFrame.Parent = ContentFrame
             DropdownFrame.BackgroundTransparency = 1
             DropdownFrame.Size = UDim2.new(1, 0, 0, 80)
             DropdownFrame.ZIndex = 16
@@ -1068,7 +1086,7 @@ function Library.CreateLib(title, discord)
             
             local ColorFrame = Instance.new("Frame")
             ColorFrame.Name = "ColorPicker_" .. text
-            ColorFrame.Parent = self.ContentArea
+            ColorFrame.Parent = ContentFrame
             ColorFrame.BackgroundTransparency = 1
             ColorFrame.Size = UDim2.new(1, 0, 0, 40)
             ColorFrame.ZIndex = 16
