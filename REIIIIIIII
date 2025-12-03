@@ -1,4 +1,3 @@
--- SaturnV7 UI Library
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -88,6 +87,157 @@ local function UpdateSliderValue(slider, value, min, max)
     end
 end
 
+function Library:CreateKeySystem()
+    local keyFrame = Instance.new("Frame")
+    keyFrame.Name = "KeySystem"
+    keyFrame.Parent = self.ScreenGui
+    keyFrame.BackgroundColor3 = Color3.fromRGB(11, 12, 14)
+    keyFrame.BackgroundTransparency = 0.3
+    keyFrame.BorderSizePixel = 0
+    keyFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+    keyFrame.Size = UDim2.new(0, 400, 0, 300)
+    keyFrame.ZIndex = 100
+    keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = keyFrame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Parent = keyFrame
+    Title.BackgroundTransparency = 1
+    Title.Position = UDim2.new(0, 0, 0, 20)
+    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.ZIndex = 101
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = self.KeySettings.Title or "Key System"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 24
+    
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Parent = keyFrame
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Position = UDim2.new(0, 0, 0, 60)
+    Subtitle.Size = UDim2.new(1, 0, 0, 20)
+    Subtitle.ZIndex = 101
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.Text = self.KeySettings.Subtitle or "Enter Key"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Subtitle.TextSize = 16
+    
+    local Note = Instance.new("TextLabel")
+    Note.Parent = keyFrame
+    Note.BackgroundTransparency = 1
+    Note.Position = UDim2.new(0, 20, 0, 90)
+    Note.Size = UDim2.new(1, -40, 0, 40)
+    Note.ZIndex = 101
+    Note.Font = Enum.Font.Gotham
+    Note.Text = self.KeySettings.Note or "Enter your key below"
+    Note.TextColor3 = Color3.fromRGB(150, 150, 150)
+    Note.TextSize = 14
+    Note.TextWrapped = true
+    
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Parent = keyFrame
+    KeyInput.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+    KeyInput.BorderSizePixel = 0
+    KeyInput.Position = UDim2.new(0.5, -150, 0, 140)
+    KeyInput.Size = UDim2.new(0, 300, 0, 40)
+    KeyInput.ZIndex = 101
+    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.PlaceholderText = "Enter Key"
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.TextSize = 16
+    
+    local UICorner2 = Instance.new("UICorner")
+    UICorner2.CornerRadius = UDim.new(0, 6)
+    UICorner2.Parent = KeyInput
+    
+    local SubmitButton = Instance.new("TextButton")
+    SubmitButton.Parent = keyFrame
+    SubmitButton.BackgroundColor3 = Color3.fromRGB(181, 79, 79)
+    SubmitButton.BorderSizePixel = 0
+    SubmitButton.Position = UDim2.new(0.5, -75, 0, 200)
+    SubmitButton.Size = UDim2.new(0, 150, 0, 40)
+    SubmitButton.ZIndex = 101
+    SubmitButton.Font = Enum.Font.GothamBold
+    SubmitButton.Text = "Submit"
+    SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitButton.TextSize = 18
+    
+    local UICorner3 = Instance.new("UICorner")
+    UICorner3.CornerRadius = UDim.new(0, 6)
+    UICorner3.Parent = SubmitButton
+    
+    local ErrorLabel = Instance.new("TextLabel")
+    ErrorLabel.Parent = keyFrame
+    ErrorLabel.BackgroundTransparency = 1
+    ErrorLabel.Position = UDim2.new(0, 20, 0, 250)
+    ErrorLabel.Size = UDim2.new(1, -40, 0, 20)
+    ErrorLabel.ZIndex = 101
+    ErrorLabel.Font = Enum.Font.Gotham
+    ErrorLabel.Text = ""
+    ErrorLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+    ErrorLabel.TextSize = 14
+    ErrorLabel.Visible = false
+    
+    if self.KeySettings.SaveKey then
+        local success, saved = pcall(function()
+            return readfile(self.KeySettings.FileName .. ".txt")
+        end)
+        if success and saved then
+            KeyInput.Text = saved
+        end
+    end
+    
+    SubmitButton.MouseButton1Click:Connect(function()
+        local inputKey = KeyInput.Text
+        local isValid = false
+        
+        if self.KeySettings.GrabKeyFromSite and self.KeySettings.Key then
+            for _, key in ipairs(self.KeySettings.Key) do
+                local success, response = pcall(function()
+                    return game:HttpGet(key)
+                end)
+                if success and response == inputKey then
+                    isValid = true
+                    break
+                end
+            end
+        else
+            for _, key in ipairs(self.KeySettings.Key or {}) do
+                if inputKey == key then
+                    isValid = true
+                    break
+                end
+            end
+        end
+        
+        if isValid then
+            self.KeyVerified = true
+            if self.KeySettings.SaveKey then
+                pcall(function()
+                    writefile(self.KeySettings.FileName .. ".txt", inputKey)
+                end)
+            end
+            keyFrame:Destroy()
+            Library.CreateLib(self.WindowTitle, self.DiscordLink, {
+                KeySystem = self.KeySystemEnabled,
+                KeySettings = self.KeySettings,
+                ToggleKey = self.ToggleKey
+            })
+        else
+            ErrorLabel.Text = "Invalid Key!"
+            ErrorLabel.Visible = true
+            task.wait(2)
+            ErrorLabel.Visible = false
+        end
+    end)
+    
+    return self
+end
+
 function Library.CreateLib(title, discord, keySystemSettings)
     local self = setmetatable({}, Library)
     self.WindowTitle = title
@@ -99,6 +249,7 @@ function Library.CreateLib(title, discord, keySystemSettings)
     self.KeySystemEnabled = keySystemSettings and keySystemSettings.KeySystem or false
     self.KeySettings = keySystemSettings and keySystemSettings.KeySettings or {}
     self.KeyVerified = false
+    self.ToggleKey = keySystemSettings and keySystemSettings.ToggleKey or Enum.KeyCode.RightShift
     
     if self.KeySystemEnabled then
         self:CreateKeySystem()
@@ -306,7 +457,7 @@ function Library.CreateLib(title, discord, keySystemSettings)
     
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if gameProcessed then return end
-        if input.KeyCode == Enum.KeyCode.RightControl then
+        if input.KeyCode == self.ToggleKey then
             self:SetVisibility(not self.Visible)
         end
     end)
@@ -315,153 +466,6 @@ function Library.CreateLib(title, discord, keySystemSettings)
     self.Background = Background
     self.TabContainer = TabContainer
     self.TabHolder = TabHolder
-    
-    function self:CreateKeySystem()
-        local keyFrame = Instance.new("Frame")
-        keyFrame.Name = "KeySystem"
-        keyFrame.Parent = self.ScreenGui
-        keyFrame.BackgroundColor3 = Color3.fromRGB(11, 12, 14)
-        keyFrame.BackgroundTransparency = 0.3
-        keyFrame.BorderSizePixel = 0
-        keyFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-        keyFrame.Size = UDim2.new(0, 400, 0, 300)
-        keyFrame.ZIndex = 100
-        keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-        
-        local UICorner = Instance.new("UICorner")
-        UICorner.CornerRadius = UDim.new(0, 8)
-        UICorner.Parent = keyFrame
-        
-        local Title = Instance.new("TextLabel")
-        Title.Parent = keyFrame
-        Title.BackgroundTransparency = 1
-        Title.Position = UDim2.new(0, 0, 0, 20)
-        Title.Size = UDim2.new(1, 0, 0, 30)
-        Title.ZIndex = 101
-        Title.Font = Enum.Font.GothamBold
-        Title.Text = self.KeySettings.Title or "Key System"
-        Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Title.TextSize = 24
-        
-        local Subtitle = Instance.new("TextLabel")
-        Subtitle.Parent = keyFrame
-        Subtitle.BackgroundTransparency = 1
-        Subtitle.Position = UDim2.new(0, 0, 0, 60)
-        Subtitle.Size = UDim2.new(1, 0, 0, 20)
-        Subtitle.ZIndex = 101
-        Subtitle.Font = Enum.Font.Gotham
-        Subtitle.Text = self.KeySettings.Subtitle or "Enter Key"
-        Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-        Subtitle.TextSize = 16
-        
-        local Note = Instance.new("TextLabel")
-        Note.Parent = keyFrame
-        Note.BackgroundTransparency = 1
-        Note.Position = UDim2.new(0, 20, 0, 90)
-        Note.Size = UDim2.new(1, -40, 0, 40)
-        Note.ZIndex = 101
-        Note.Font = Enum.Font.Gotham
-        Note.Text = self.KeySettings.Note or "Enter your key below"
-        Note.TextColor3 = Color3.fromRGB(150, 150, 150)
-        Note.TextSize = 14
-        Note.TextWrapped = true
-        
-        local KeyInput = Instance.new("TextBox")
-        KeyInput.Parent = keyFrame
-        KeyInput.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
-        KeyInput.BorderSizePixel = 0
-        KeyInput.Position = UDim2.new(0.5, -150, 0, 140)
-        KeyInput.Size = UDim2.new(0, 300, 0, 40)
-        KeyInput.ZIndex = 101
-        KeyInput.Font = Enum.Font.Gotham
-        KeyInput.PlaceholderText = "Enter Key"
-        KeyInput.Text = ""
-        KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-        KeyInput.TextSize = 16
-        
-        local UICorner2 = Instance.new("UICorner")
-        UICorner2.CornerRadius = UDim.new(0, 6)
-        UICorner2.Parent = KeyInput
-        
-        local SubmitButton = Instance.new("TextButton")
-        SubmitButton.Parent = keyFrame
-        SubmitButton.BackgroundColor3 = Color3.fromRGB(181, 79, 79)
-        SubmitButton.BorderSizePixel = 0
-        SubmitButton.Position = UDim2.new(0.5, -75, 0, 200)
-        SubmitButton.Size = UDim2.new(0, 150, 0, 40)
-        SubmitButton.ZIndex = 101
-        SubmitButton.Font = Enum.Font.GothamBold
-        SubmitButton.Text = "Submit"
-        SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        SubmitButton.TextSize = 18
-        
-        local UICorner3 = Instance.new("UICorner")
-        UICorner3.CornerRadius = UDim.new(0, 6)
-        UICorner3.Parent = SubmitButton
-        
-        local ErrorLabel = Instance.new("TextLabel")
-        ErrorLabel.Parent = keyFrame
-        ErrorLabel.BackgroundTransparency = 1
-        ErrorLabel.Position = UDim2.new(0, 20, 0, 250)
-        ErrorLabel.Size = UDim2.new(1, -40, 0, 20)
-        ErrorLabel.ZIndex = 101
-        ErrorLabel.Font = Enum.Font.Gotham
-        ErrorLabel.Text = ""
-        ErrorLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
-        ErrorLabel.TextSize = 14
-        ErrorLabel.Visible = false
-        
-        if self.KeySettings.SaveKey then
-            local success, saved = pcall(function()
-                return readfile(self.KeySettings.FileName .. ".txt")
-            end)
-            if success and saved then
-                KeyInput.Text = saved
-            end
-        end
-        
-        SubmitButton.MouseButton1Click:Connect(function()
-            local inputKey = KeyInput.Text
-            local isValid = false
-            
-            if self.KeySettings.GrabKeyFromSite and self.KeySettings.Key then
-                for _, key in ipairs(self.KeySettings.Key) do
-                    local success, response = pcall(function()
-                        return game:HttpGet(key)
-                    end)
-                    if success and response == inputKey then
-                        isValid = true
-                        break
-                    end
-                end
-            else
-                for _, key in ipairs(self.KeySettings.Key or {}) do
-                    if inputKey == key then
-                        isValid = true
-                        break
-                    end
-                end
-            end
-            
-            if isValid then
-                self.KeyVerified = true
-                if self.KeySettings.SaveKey then
-                    pcall(function()
-                        writefile(self.KeySettings.FileName .. ".txt", inputKey)
-                    end)
-                end
-                keyFrame:Destroy()
-                self:CreateLib(title, discord, keySystemSettings)
-            else
-                ErrorLabel.Text = "Invalid Key!"
-                ErrorLabel.Visible = true
-                task.wait(2)
-                ErrorLabel.Visible = false
-            end
-        end)
-        
-        return self
-    end
     
     function self:SetVisibility(state)
         self.Visible = state
