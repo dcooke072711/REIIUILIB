@@ -999,277 +999,274 @@ function Library.CreateLib(title, discord, keySystemSettings)
         end
         
         function tab:NewToggle(text, info, callback)
-            local settingKey = text:gsub("%s+", "_")
-            self[settingKey] = false
-            
-            local ToggleFrame = Instance.new("Frame")
-            ToggleFrame.Name = "Toggle_" .. text
-            ToggleFrame.Parent = ContentFrame
-            ToggleFrame.BackgroundTransparency = 1
-            ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
-            ToggleFrame.ZIndex = 16
-            
-            local Section = Instance.new("Frame")
-            Section.Parent = ToggleFrame
-            Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
-            Section.BorderSizePixel = 0
-            Section.Size = UDim2.new(1, 0, 1, 0)
-            Section.ZIndex = 16
-            
-            local UICorner = Instance.new("UICorner")
-            UICorner.CornerRadius = UDim.new(0, 4)
-            UICorner.Parent = Section
-            
-            local UIPadding = Instance.new("UIPadding")
-            UIPadding.Parent = Section
-            UIPadding.PaddingBottom = UDim.new(0, 5)
-            UIPadding.PaddingLeft = UDim.new(0, 15)
-            UIPadding.PaddingRight = UDim.new(0, 15)
-            UIPadding.PaddingTop = UDim.new(0, 5)
-            
-            local UIListLayout = Instance.new("UIListLayout")
-            UIListLayout.Parent = Section
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0, 2)
-            
-            local ToggleContainer = Instance.new("Frame")
-            ToggleContainer.Name = "Toggle_" .. text
-            ToggleContainer.Parent = Section
-            ToggleContainer.BackgroundTransparency = 1
-            ToggleContainer.BorderSizePixel = 0
-            ToggleContainer.Size = UDim2.new(1, 0, 0, 25)
-            ToggleContainer.ZIndex = 26
-            
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Parent = ToggleContainer
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.Size = UDim2.new(0, 140, 1, 0)
-            TextLabel.ZIndex = 27
-            TextLabel.Font = Enum.Font.Gotham
-            TextLabel.Text = text
-            TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
-            TextLabel.TextSize = 15
-            TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-            
-            local ToggleFrameInner = Instance.new("Frame")
-            ToggleFrameInner.Name = "ToggleFrame"
-            ToggleFrameInner.Parent = ToggleContainer
-            ToggleFrameInner.AnchorPoint = Vector2.new(0, 0.5)
-            ToggleFrameInner.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
-            ToggleFrameInner.BorderSizePixel = 0
-            ToggleFrameInner.Position = UDim2.new(1, -32, 0.5, 0)
-            ToggleFrameInner.Size = UDim2.new(0, 32, 0, 16)
-            ToggleFrameInner.ZIndex = 28
-            
-            local UICorner_2 = Instance.new("UICorner")
-            UICorner_2.CornerRadius = UDim.new(0, 4)
-            UICorner_2.Parent = ToggleFrameInner
-            
-            local ToggleIcon = Instance.new("ImageLabel")
-            ToggleIcon.Name = "ToggleIcon"
-            ToggleIcon.Parent = ToggleFrameInner
-            ToggleIcon.AnchorPoint = Vector2.new(0, 0.5)
-            ToggleIcon.BackgroundTransparency = 1
-            ToggleIcon.Position = UDim2.new(0.15, 0, 0.5, 0)
-            ToggleIcon.Size = UDim2.new(0, 8, 0, 8)
-            ToggleIcon.ZIndex = 30
-            ToggleIcon.Image = "rbxassetid://5825681337"
-            ToggleIcon.ImageColor3 = Color3.fromRGB(85, 90, 101)
-            
-            local ToggleButton = Instance.new("TextButton")
-            ToggleButton.Name = "ToggleButton"
-            ToggleButton.Parent = ToggleContainer
-            ToggleButton.BackgroundTransparency = 1
-            ToggleButton.Size = UDim2.new(1, 0, 1, 0)
-            ToggleButton.ZIndex = 35
-            ToggleButton.Text = ""
-            
-            ToggleButton.MouseButton1Click:Connect(function()
-                self[settingKey] = not self[settingKey]
-                UpdateToggleUI(ToggleButton, self[settingKey])
-                if callback then
-                    callback(self[settingKey])
-                end
-            end)
-        end
+    local settingKey = text:gsub("%s+", "_")
+    self[settingKey] = false
+
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Name = "Toggle_" .. text
+    ToggleFrame.Parent = ContentFrame
+    ToggleFrame.BackgroundTransparency = 1
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 40)
+    ToggleFrame.ZIndex = 16
+
+    local Section = Instance.new("Frame")
+    Section.Parent = ToggleFrame
+    Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
+    Section.BorderSizePixel = 0
+    Section.Size = UDim2.new(1, 0, 1, 0)
+    Section.ZIndex = 16
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 4)
+    UICorner.Parent = Section
+
+    local UIPadding = Instance.new("UIPadding")
+    UIPadding.Parent = Section
+    UIPadding.PaddingBottom = UDim.new(0, 5)
+    UIPadding.PaddingLeft = UDim.new(0, 15)
+    UIPadding.PaddingRight = UDim.new(0, 15)
+    UIPadding.PaddingTop = UDim.new(0, 5)
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = Section
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 2)
+
+    local ToggleContainer = Instance.new("Frame")
+    ToggleContainer.Name = "Toggle_" .. text
+    ToggleContainer.Parent = Section
+    ToggleContainer.BackgroundTransparency = 1
+    ToggleContainer.BorderSizePixel = 0
+    ToggleContainer.Size = UDim2.new(1, 0, 0, 25)
+    ToggleContainer.ZIndex = 26
+
+    local TextLabel = Instance.new("TextLabel")
+    TextLabel.Parent = ToggleContainer
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(0, 140, 1, 0)
+    TextLabel.ZIndex = 27
+    TextLabel.Font = Enum.Font.Gotham
+    TextLabel.Text = text
+    TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
+    TextLabel.TextSize = 15
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ToggleFrameInner = Instance.new("Frame")
+    ToggleFrameInner.Name = "ToggleFrame"
+    ToggleFrameInner.Parent = ToggleContainer
+    ToggleFrameInner.AnchorPoint = Vector2.new(0, 0.5)
+    ToggleFrameInner.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+    ToggleFrameInner.BorderSizePixel = 0
+    ToggleFrameInner.Position = UDim2.new(1, -32, 0.5, 0)
+    ToggleFrameInner.Size = UDim2.new(0, 32, 0, 16)
+    ToggleFrameInner.ZIndex = 28
+
+    local UICorner2 = Instance.new("UICorner")
+    UICorner2.CornerRadius = UDim.new(0, 4)
+    UICorner2.Parent = ToggleFrameInner
+
+    local ToggleIcon = Instance.new("ImageLabel")
+    ToggleIcon.Name = "ToggleIcon"
+    ToggleIcon.Parent = ToggleFrameInner
+    ToggleIcon.AnchorPoint = Vector2.new(0, 0.5)
+    ToggleIcon.BackgroundTransparency = 1
+    ToggleIcon.Position = UDim2.new(0.15, 0, 0.5, 0)
+    ToggleIcon.Size = UDim2.new(0, 8, 0, 8)
+    ToggleIcon.ZIndex = 30
+    ToggleIcon.Image = "rbxassetid://5825681337"
+    ToggleIcon.ImageColor3 = Color3.fromRGB(85, 90, 101)
+
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Name = "ToggleButton"
+    ToggleButton.Parent = ToggleContainer
+    ToggleButton.BackgroundTransparency = 1
+    ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+    ToggleButton.ZIndex = 35
+    ToggleButton.Text = ""
+
+    local function SetState(state)
+        self[settingKey] = state
+        UpdateToggleUI(ToggleButton, state)
+        if callback then callback(state) end
+    end
+
+    ToggleButton.MouseButton1Click:Connect(function()
+        SetState(not self[settingKey])
+    end)
+
+    return {
+        Set = SetState,
+        Get = function() return self[settingKey] end
+    }
+end
+
         
-        function tab:NewSlider(text, info, max, min, defaultValue, callback)
-            local settingKey = text:gsub("%s+", "_")
-            self[settingKey] = defaultValue or min
-            
-            local SliderFrame = Instance.new("Frame")
-            SliderFrame.Name = "Slider_" .. text
-            SliderFrame.Parent = ContentFrame
-            SliderFrame.BackgroundTransparency = 1
-            SliderFrame.Size = UDim2.new(1, 0, 0, 70)
-            SliderFrame.ZIndex = 16
-            
-            local Section = Instance.new("Frame")
-            Section.Parent = SliderFrame
-            Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
-            Section.BorderSizePixel = 0
-            Section.Size = UDim2.new(1, 0, 1, 0)
-            Section.ZIndex = 16
-            
-            local UICorner = Instance.new("UICorner")
-            UICorner.CornerRadius = UDim.new(0, 4)
-            UICorner.Parent = Section
-            
-            local UIPadding = Instance.new("UIPadding")
-            UIPadding.Parent = Section
-            UIPadding.PaddingBottom = UDim.new(0, 5)
-            UIPadding.PaddingLeft = UDim.new(0, 15)
-            UIPadding.PaddingRight = UDim.new(0, 15)
-            UIPadding.PaddingTop = UDim.new(0, 5)
-            
-            local UIListLayout = Instance.new("UIListLayout")
-            UIListLayout.Parent = Section
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0, 2)
-            
-            local SliderContainer = Instance.new("Frame")
-            SliderContainer.Name = "Slider_" .. text
-            SliderContainer.Parent = Section
-            SliderContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            SliderContainer.BackgroundTransparency = 1
-            SliderContainer.BorderSizePixel = 0
-            SliderContainer.Size = UDim2.new(1, 0, 0, 38)
-            SliderContainer.ZIndex = 20
-            
-            local TextLabel = Instance.new("TextLabel")
-            TextLabel.Parent = SliderContainer
-            TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            TextLabel.BackgroundTransparency = 1
-            TextLabel.BorderSizePixel = 0
-            TextLabel.Size = UDim2.new(0, 120, 0, 25)
-            TextLabel.ZIndex = 27
-            TextLabel.Font = Enum.Font.Gotham
-            TextLabel.Text = text
-            TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
-            TextLabel.TextSize = 15
-            TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-            
-            local ValueBox = Instance.new("TextBox")
-            ValueBox.Name = "ValueBox"
-            ValueBox.Parent = SliderContainer
-            ValueBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            ValueBox.BackgroundTransparency = 1
-            ValueBox.BorderSizePixel = 0
-            ValueBox.Position = UDim2.new(1, -50, 0, 0)
-            ValueBox.Size = UDim2.new(0, 45, 0, 25)
-            ValueBox.ZIndex = 27
-            ValueBox.ClearTextOnFocus = false
-            ValueBox.Font = Enum.Font.Gotham
-            ValueBox.Text = tostring(defaultValue or min)
-            ValueBox.TextColor3 = Color3.fromRGB(156, 156, 156)
-            ValueBox.TextSize = 15
-            ValueBox.TextXAlignment = Enum.TextXAlignment.Right
-            
-            local SliderTrack = Instance.new("Frame")
-            SliderTrack.Name = "SliderTrack"
-            SliderTrack.Parent = SliderContainer
-            SliderTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
-            SliderTrack.BorderSizePixel = 0
-            SliderTrack.Position = UDim2.new(0, 0, 0, 27)
-            SliderTrack.Size = UDim2.new(1, 0, 0, 4)
-            SliderTrack.ZIndex = 25
-            
-            local UICorner_ST = Instance.new("UICorner")
-            UICorner_ST.CornerRadius = UDim.new(1, 0)
-            UICorner_ST.Parent = SliderTrack
-            
-            local SliderFill = Instance.new("Frame")
-            SliderFill.Name = "SliderFill"
-            SliderFill.Parent = SliderTrack
-            SliderFill.BackgroundColor3 = Color3.fromRGB(232, 232, 255)
-            SliderFill.BorderSizePixel = 0
-            SliderFill.Size = UDim2.new(0, 0, 1, 0)
-            SliderFill.ZIndex = 25
-            
-            local UIGradient_2 = Instance.new("UIGradient")
-            UIGradient_2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(100, 36, 36)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(181, 79, 79))}
-            UIGradient_2.Parent = SliderFill
-            
-            local UICorner_SF = Instance.new("UICorner")
-            UICorner_SF.CornerRadius = UDim.new(1, 0)
-            UICorner_SF.Parent = SliderFill
-            
-            local SliderHandle = Instance.new("Frame")
-            SliderHandle.Name = "SliderHandle"
-            SliderHandle.Parent = SliderFill
-            SliderHandle.AnchorPoint = Vector2.new(0.5, 0.5)
-            SliderHandle.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
-            SliderHandle.BorderSizePixel = 0
-            SliderHandle.Position = UDim2.new(1, 0, 0.5, 0)
-            SliderHandle.Size = UDim2.new(0, 3, 0, 8)
-            SliderHandle.ZIndex = 30
-            
-            local UICorner_SH = Instance.new("UICorner")
-            UICorner_SH.CornerRadius = UDim.new(1, 0)
-            UICorner_SH.Parent = SliderHandle
-            
-            local HitArea = Instance.new("Frame")
-            HitArea.Name = "HitArea"
-            HitArea.Parent = SliderContainer
-            HitArea.BackgroundTransparency = 1
-            HitArea.BorderSizePixel = 0
-            HitArea.Position = UDim2.new(0, 0, 0, 20)
-            HitArea.Size = UDim2.new(1, 0, 0, 18)
-            HitArea.ZIndex = 26
-            
-            local function UpdateValue(value)
-                value = math.clamp(value, min, max)
-                self[settingKey] = value
-                UpdateSliderValue(SliderContainer, value, min, max)
-                ValueBox.Text = string.format("%.1f", value)
-                if callback then
-                    callback(value)
-                end
-            end
-            
-            UpdateValue(defaultValue or min)
-            
-            ValueBox.FocusLost:Connect(function()
-                local num = tonumber(ValueBox.Text)
-                if num then
-                    UpdateValue(num)
-                else
-                    ValueBox.Text = string.format("%.1f", self[settingKey])
-                end
-            end)
-            
-            local isDragging = false
-            local connection
-            
-            local function updateFromMouse()
-                if not isDragging then return end
-                
-                local mousePos = UserInputService:GetMouseLocation()
-                local trackPos = SliderTrack.AbsolutePosition
-                local trackSize = SliderTrack.AbsoluteSize
-                
-                local relativeX = math.clamp((mousePos.X - trackPos.X) / trackSize.X, 0, 1)
-                local value = min + (relativeX * (max - min))
-                UpdateValue(value)
-            end
-            
-            HitArea.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    isDragging = true
-                    connection = RunService.RenderStepped:Connect(updateFromMouse)
-                end
-            end)
-            
-            HitArea.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    isDragging = false
-                    if connection then
-                        connection:Disconnect()
-                        connection = nil
-                    end
-                end
-            end)
+function tab:NewSlider(text, info, max, min, defaultValue, callback)
+    local settingKey = text:gsub("%s+", "_")
+    self[settingKey] = defaultValue or min
+
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Name = "Slider_" .. text
+    SliderFrame.Parent = ContentFrame
+    SliderFrame.BackgroundTransparency = 1
+    SliderFrame.Size = UDim2.new(1, 0, 0, 70)
+    SliderFrame.ZIndex = 16
+
+    local Section = Instance.new("Frame")
+    Section.Parent = SliderFrame
+    Section.BackgroundColor3 = Color3.fromRGB(14, 16, 17)
+    Section.BorderSizePixel = 0
+    Section.Size = UDim2.new(1, 0, 1, 0)
+    Section.ZIndex = 16
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 4)
+    UICorner.Parent = Section
+
+    local UIPadding = Instance.new("UIPadding")
+    UIPadding.Parent = Section
+    UIPadding.PaddingBottom = UDim.new(0, 5)
+    UIPadding.PaddingLeft = UDim.new(0, 15)
+    UIPadding.PaddingRight = UDim.new(0, 15)
+    UIPadding.PaddingTop = UDim.new(0, 5)
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = Section
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 2)
+
+    local SliderContainer = Instance.new("Frame")
+    SliderContainer.Name = "Slider_" .. text
+    SliderContainer.Parent = Section
+    SliderContainer.BackgroundTransparency = 1
+    SliderContainer.Size = UDim2.new(1, 0, 0, 38)
+    SliderContainer.ZIndex = 20
+
+    local TextLabel = Instance.new("TextLabel")
+    TextLabel.Parent = SliderContainer
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(0, 120, 0, 25)
+    TextLabel.ZIndex = 27
+    TextLabel.Font = Enum.Font.Gotham
+    TextLabel.Text = text
+    TextLabel.TextColor3 = Color3.fromRGB(156, 156, 156)
+    TextLabel.TextSize = 15
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ValueBox = Instance.new("TextBox")
+    ValueBox.Name = "ValueBox"
+    ValueBox.Parent = SliderContainer
+    ValueBox.BackgroundTransparency = 1
+    ValueBox.Position = UDim2.new(1, -50, 0, 0)
+    ValueBox.Size = UDim2.new(0, 45, 0, 25)
+    ValueBox.ZIndex = 27
+    ValueBox.ClearTextOnFocus = false
+    ValueBox.Font = Enum.Font.Gotham
+    ValueBox.Text = tostring(defaultValue or min)
+    ValueBox.TextColor3 = Color3.fromRGB(156, 156, 156)
+    ValueBox.TextSize = 15
+    ValueBox.TextXAlignment = Enum.TextXAlignment.Right
+
+    local SliderTrack = Instance.new("Frame")
+    SliderTrack.Name = "SliderTrack"
+    SliderTrack.Parent = SliderContainer
+    SliderTrack.BackgroundColor3 = Color3.fromRGB(20, 20, 22)
+    SliderTrack.BorderSizePixel = 0
+    SliderTrack.Position = UDim2.new(0, 0, 0, 27)
+    SliderTrack.Size = UDim2.new(1, 0, 0, 4)
+    SliderTrack.ZIndex = 25
+
+    local UICorner_ST = Instance.new("UICorner")
+    UICorner_ST.CornerRadius = UDim.new(1, 0)
+    UICorner_ST.Parent = SliderTrack
+
+    local SliderFill = Instance.new("Frame")
+    SliderFill.Name = "SliderFill"
+    SliderFill.Parent = SliderTrack
+    SliderFill.BackgroundColor3 = Color3.fromRGB(232, 232, 255)
+    SliderFill.BorderSizePixel = 0
+    SliderFill.Size = UDim2.new(0, 0, 1, 0)
+    SliderFill.ZIndex = 25
+
+    local UIGradient_2 = Instance.new("UIGradient")
+    UIGradient_2.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 36, 36)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(181, 79, 79))
+    }
+    UIGradient_2.Parent = SliderFill
+
+    local UICorner_SF = Instance.new("UICorner")
+    UICorner_SF.CornerRadius = UDim.new(1, 0)
+    UICorner_SF.Parent = SliderFill
+
+    local SliderHandle = Instance.new("Frame")
+    SliderHandle.Name = "SliderHandle"
+    SliderHandle.Parent = SliderFill
+    SliderHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+    SliderHandle.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
+    SliderHandle.BorderSizePixel = 0
+    SliderHandle.Position = UDim2.new(1, 0, 0.5, 0)
+    SliderHandle.Size = UDim2.new(0, 3, 0, 8)
+    SliderHandle.ZIndex = 30
+
+    local UICorner_SH = Instance.new("UICorner")
+    UICorner_SH.CornerRadius = UDim.new(1, 0)
+    UICorner_SH.Parent = SliderHandle
+
+    local HitArea = Instance.new("Frame")
+    HitArea.Name = "HitArea"
+    HitArea.Parent = SliderContainer
+    HitArea.BackgroundTransparency = 1
+    HitArea.Position = UDim2.new(0, 0, 0, 20)
+    HitArea.Size = UDim2.new(1, 0, 0, 18)
+    HitArea.ZIndex = 26
+
+    local function UpdateValue(value)
+        value = math.clamp(value, min, max)
+        self[settingKey] = value
+        local pct = (value - min) / (max - min)
+        SliderFill.Size = UDim2.new(pct, 0, 1, 0)
+        ValueBox.Text = tostring(math.floor(value * 10) / 10)
+        if callback then callback(value) end
+    end
+
+    UpdateValue(defaultValue or min)
+
+    ValueBox.FocusLost:Connect(function()
+        local num = tonumber(ValueBox.Text)
+        if num then UpdateValue(num) end
+    end)
+
+    local dragging = false
+    local function Drag()
+        if not dragging then return end
+        local mp = UserInputService:GetMouseLocation()
+        local pos = SliderTrack.AbsolutePosition
+        local size = SliderTrack.AbsoluteSize
+        local relative = math.clamp((mp.X - pos.X) / size.X, 0, 1)
+        local newVal = min + relative * (max - min)
+        UpdateValue(newVal)
+    end
+
+    HitArea.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            RunService.RenderStepped:Connect(Drag)
         end
+    end)
+
+    HitArea.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    return {
+        Set = function(value) UpdateValue(value) end,
+        Get = function() return self[settingKey] end
+    }
+end
+
         
         function tab:NewDropdown(text, info, options, callback)
             local DropdownFrame = Instance.new("Frame")
